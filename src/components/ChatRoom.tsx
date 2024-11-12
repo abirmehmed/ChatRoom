@@ -18,7 +18,6 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentGroup, users, currentUser })
   const fileInputRef = useRef<HTMLInputElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messageContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -134,8 +133,9 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentGroup, users, currentUser })
   const messagesByDate = groupMessagesByDate(messages);
 
   return (
-    <div className="flex flex-col h-full bg-gray-800">
-      <div className="bg-gray-700 p-4 sticky top-0 z-20">
+    <div className="flex flex-col h-full relative">
+      {/* Fixed Chat Header */}
+      <div className="bg-gray-700 p-4 shadow-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <img src={currentGroup.avatar} alt={currentGroup.name} className="w-10 h-10 rounded-full mr-3" />
@@ -147,44 +147,52 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentGroup, users, currentUser })
           </div>
         </div>
       </div>
-      <div ref={messageContainerRef} className="flex-grow overflow-y-auto p-4">
-        {Object.entries(messagesByDate).map(([date, dateMessages]) => (
-          <div key={date}>
-            <div className="flex items-center justify-center my-4">
-              <div className="bg-gray-700 px-4 py-1 rounded-full text-sm">
-                {new Date(dateMessages[0].timestamp).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
+
+      {/* Scrollable Messages Area with Bottom Padding for Input Area */}
+      <div 
+        className="flex-1 overflow-y-auto scrollbar-thin pb-[88px]" // Added padding to account for input area
+      >
+        <div className="p-4">
+          {Object.entries(messagesByDate).map(([date, dateMessages]) => (
+            <div key={date}>
+              <div className="flex items-center justify-center my-4">
+                <div className="bg-gray-700 px-4 py-1 rounded-full text-sm">
+                  {new Date(dateMessages[0].timestamp).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </div>
               </div>
+              {dateMessages.map((message) => (
+                <ChatMessage
+                  key={message.id}
+                  message={message}
+                  user={users.find((u) => u.id === message.userId) || currentUser}
+                  isCurrentUser={message.userId === currentUser.id}
+                  onEdit={(messageId, newContent) => {
+                    const updatedMessages = messages.map(msg => 
+                      msg.id === messageId ? { ...msg, content: newContent } : msg
+                    );
+                    setMessages(updatedMessages);
+                    updateMessage(currentGroup.id, updatedMessages.find(m => m.id === messageId)!);
+                  }}
+                  onDelete={(messageId) => {
+                    const updatedMessages = messages.filter(msg => msg.id !== messageId);
+                    setMessages(updatedMessages);
+                    deleteMessage(currentGroup.id, messageId);
+                  }}
+                />
+              ))}
             </div>
-            {dateMessages.map((message) => (
-              <ChatMessage
-                key={message.id}
-                message={message}
-                user={users.find((u) => u.id === message.userId) || currentUser}
-                isCurrentUser={message.userId === currentUser.id}
-                onEdit={(messageId, newContent) => {
-                  const updatedMessages = messages.map(msg => 
-                    msg.id === messageId ? { ...msg, content: newContent } : msg
-                  );
-                  setMessages(updatedMessages);
-                  updateMessage(currentGroup.id, updatedMessages.find(m => m.id === messageId)!);
-                }}
-                onDelete={(messageId) => {
-                  const updatedMessages = messages.filter(msg => msg.id !== messageId);
-                  setMessages(updatedMessages);
-                  deleteMessage(currentGroup.id, messageId);
-                }}
-              />
-            ))}
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
-      <div className="border-t border-gray-700 p-4 sticky bottom-0 bg-gray-800">
+
+      {/* Fixed Message Input Area at Bottom */}
+      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-700 bg-gray-800 p-4">
         <div className="flex items-start gap-2">
           <div className="relative flex-1">
             <button
@@ -235,6 +243,6 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentGroup, users, currentUser })
       </div>
     </div>
   );
-};
+}
 
 export default ChatRoom;
