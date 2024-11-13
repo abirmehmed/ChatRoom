@@ -133,8 +133,8 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentGroup, users, currentUser })
   const messagesByDate = groupMessagesByDate(messages);
 
   return (
-    <div className="flex flex-col h-full relative">
-      {/* Fixed Chat Header */}
+    <div className="flex flex-col h-full">
+      {/* Chat Header */}
       <div className="bg-gray-700 p-4 shadow-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -148,10 +148,8 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentGroup, users, currentUser })
         </div>
       </div>
 
-      {/* Scrollable Messages Area with Bottom Padding for Input Area */}
-      <div 
-        className="flex-1 overflow-y-auto scrollbar-thin pb-[88px]" // Added padding to account for input area
-      >
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
         <div className="p-4">
           {Object.entries(messagesByDate).map(([date, dateMessages]) => (
             <div key={date}>
@@ -191,8 +189,8 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentGroup, users, currentUser })
         </div>
       </div>
 
-      {/* Fixed Message Input Area at Bottom */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-700 bg-gray-800 p-4">
+      {/* Message Input Area */}
+      <div className="border-t border-gray-700 bg-gray-800 p-4">
         <div className="flex items-start gap-2">
           <div className="relative flex-1">
             <button
@@ -222,13 +220,13 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentGroup, users, currentUser })
           </div>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="text-gray-400 hover:text-gray-300 focus:outline-none p-2 mt-1"
+            className="text-gray-400 hover:text-gray-300 focus:outline-none p-2"
           >
             <Image size={20} />
           </button>
           <button
             onClick={handleSendMessage}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-1"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Send
           </button>
@@ -243,6 +241,6 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentGroup, users, currentUser })
       </div>
     </div>
   );
-}
+};
 
 export default ChatRoom;
